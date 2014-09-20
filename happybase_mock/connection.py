@@ -33,7 +33,12 @@ class Connection(object):
                  autoconnect=True, table_prefix=None,
                  table_prefix_separator='_', compat=DEFAULT_COMPAT,
                  transport=DEFAULT_TRANSPORT):
-        pass
+        self.host = host or DEFAULT_HOST
+        self.port = port or DEFAULT_PORT
+        self.timeout = timeout
+        self.table_prefix = table_prefix
+        self.table_prefix_separator = table_prefix_separator
+        self.compat = compat
 
     def open(self):
         pass
@@ -42,7 +47,11 @@ class Connection(object):
         pass
 
     def __del__(self):
-        pass
+        # Delete self from Connection._instances
+        instance_id = Connection._get_instance_id(
+            self.host, self.port, self.table_prefix,
+            self.table_prefix_separator)
+        Connection._instances.pop(instance_id, None)
 
     def table(self, name, use_prefix=True):
         pass
