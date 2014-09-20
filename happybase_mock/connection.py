@@ -7,6 +7,8 @@ DEFAULT_COMPAT = '0.96'
 
 class Connection(object):
 
+    # A dict that stores singleton instances, where key is
+    # 'host:port/table_prefix', value is Connection object
     _instances = {}
 
     @classmethod
