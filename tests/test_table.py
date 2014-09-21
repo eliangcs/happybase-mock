@@ -65,3 +65,7 @@ class TestTable(unittest.TestCase):
             'd:name': 'Elsa',
             'd:email': 'elsa@example.com'
         })
+
+    def test_no_such_column_family(self):
+        with self.assertRaises(IOError):
+            self.table.put('01', {'bad_cf:name': 'Dont Care'})
