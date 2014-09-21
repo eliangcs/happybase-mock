@@ -1,6 +1,14 @@
 import time
 
 
+def _check_table_existence(method):
+    def wrap(table, *args, **kwargs):
+        if table.name not in table.connection._tables:
+            raise IOError('TableNotFoundException: %s' % table.name)
+        return method(table, *args, **kwargs)
+    return wrap
+
+
 class Table(object):
 
     def __init__(self, name, connection):
@@ -50,6 +58,7 @@ class Table(object):
              limit=None, sorted_columns=False):
         pass
 
+    @_check_table_existence
     def put(self, row, data, timestamp=None, wal=True):
         # Check data against column families
         for colname in data:
