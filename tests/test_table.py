@@ -44,8 +44,8 @@ class TestTable(unittest.TestCase):
         self.table.put('01', {'d:name': 'Cate'}, timestamp=3)
         self.table.put('01', {'d:name': 'Dave'}, timestamp=4)
 
-        self.assertEqual(self.table.row('01', timestamp=1), {'d:name': 'Bob'})
-        self.assertEqual(self.table.row('01', timestamp=2), {'d:name': 'Bob'})
+        self.assertEqual(self.table.row('01', timestamp=1), {})
+        self.assertEqual(self.table.row('01', timestamp=2), {})
         self.assertEqual(self.table.row('01', timestamp=3), {'d:name': 'Bob'})
         self.assertEqual(self.table.row('01', timestamp=4), {'d:name': 'Cate'})
         self.assertEqual(self.table.row('01', timestamp=5), {'d:name': 'Dave'})
@@ -69,3 +69,45 @@ class TestTable(unittest.TestCase):
     def test_no_such_column_family(self):
         with self.assertRaises(IOError):
             self.table.put('01', {'bad_cf:name': 'Dont Care'})
+
+    def test_delete_whole_row(self):
+        self.table.put('1', {'d:name': 'Gary'}, timestamp=1)
+        self.table.put('1', {'d:age': '21'}, timestamp=1)
+        self.table.put('2', {'d:name': 'Frank'})
+        self.table.delete('1')
+
+        self.assertEqual(self.table.row('1'), {})
+        self.assertEqual(self.table.row('2'), {'d:name': 'Frank'})
+
+    def test_delete_some_columns(self):
+        self.table.put('1', {
+            'd:name': 'Harry',
+            'd:age': '16',
+            'd:sex': 'M'
+        })
+        self.table.delete('1', columns=('d:age', 'd:sex'))
+        self.assertEqual(self.table.row('1'), {'d:name': 'Harry'})
+
+    def test_delete_some_timestamps(self):
+        # Create a row like this:
+        #     d:a   d:b   d:c
+        #  1   a1    b1    c1
+        #  2   a2    b2    c2
+        #  3   a3    b3    c3
+        for i in xrange(1, 4):
+            self.table.put('key', {
+                'd:a': 'a%d' % i, 'd:b': 'b%d' % i, 'd:c': 'c%d' % i
+            }, timestamp=i)
+
+        # After deleting a1, b1, a2, b2, the cells should become:
+        #     d:a   d:b   d:c
+        #  1               c1
+        #  2               c2
+        #  3   a3    b3    c3
+        self.table.delete('key', columns=('d:a', 'd:b'), timestamp=2)
+        self.assertEqual(self.table.row('key'), {
+            'd:a': 'a3', 'd:b': 'b3', 'd:c': 'c3'
+        })
+        self.assertEqual(self.table.row('key', timestamp=3), {
+            'd:c': 'c2'
+        })

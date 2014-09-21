@@ -41,16 +41,18 @@ class Table(object):
 
         for colname in columns:
             if colname in data:
-                timestamps = sorted(data[colname].keys(), reverse=True)
+                cell = data[colname]
+                timestamps = sorted(cell.keys(), reverse=True)
                 if timestamp is None:
                     # Use latest version if timestamp isn't specified
                     ts = timestamps[0]
+                    result[colname] = cell[ts]
                 else:
                     # Find the first ts < timestamp
                     for ts in timestamps:
                         if ts < timestamp:
+                            result[colname] = cell[ts]
                             break
-                result[colname] = data[colname][ts]
 
         return result
 
@@ -100,7 +102,29 @@ class Table(object):
                 del column[min(column.keys())]
 
     def delete(self, row, columns=None, timestamp=None, wal=True):
-        pass
+        if not columns and timestamp is None:
+            # Delete whole row
+            self._data.pop(row, None)
+        elif row in self._data:
+            data = self._data[row]
+            if not columns:
+                # Delete all columns if not specified
+                columns = data.keys()
+
+            if timestamp is None:
+                timestamp = int(time.time() * 1000)
+
+            to_be_deleted = []
+            for colname in columns:
+                for ts in data[colname]:
+                    if ts <= timestamp:
+                        to_be_deleted.append((colname, ts))
+
+            for colname, ts in to_be_deleted:
+                del data[colname][ts]
+                if not data[colname]:
+                    # Delete a column if it doesn't have any timestamps
+                    del data[colname]
 
     def batch(self, timestamp=None, batch_size=None, transaction=False,
               wal=True):
