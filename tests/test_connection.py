@@ -30,6 +30,13 @@ class TestConnectionSingleton(unittest.TestCase):
         conn2 = Connection(table_prefix='app', table_prefix_separator='__')
         self.assertIsNot(conn1, conn2)
 
+    def test_del(self):
+        conn1 = Connection()
+        conn1.__del__()
+
+        conn2 = Connection()
+        self.assertIsNot(conn1, conn2)
+
 
 class TestConnection(unittest.TestCase):
 
@@ -124,3 +131,12 @@ class TestConnection(unittest.TestCase):
 
         with self.assertRaises(IOError):
             self.conn.delete_table('game')
+
+    def test_open_close(self):
+        # TODO: open() and close() don't really do anything
+        self.conn.open()
+        self.conn.close()
+
+    def test_compact(self):
+        # TODO: compact_table() doesn't really do anything
+        self.conn.compact_table('no_such_table')
