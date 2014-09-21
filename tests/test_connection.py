@@ -112,6 +112,14 @@ class TestConnection(unittest.TestCase):
         self.conn = Connection(table_prefix='abc')
         self.test_list_tables()
 
+    def test_get_non_existing_table(self):
+        # In HappyBase, you still can get a non-existing table from a
+        # connection, but you will get an error if you operate on that table
+        table = self.conn.table('no_such_table')
+
+        with self.assertRaises(IOError):
+            table.put('test', {})
+
     def test_delete_table(self):
         families = {'d': dict()}
         self.conn.create_table('dog', families)
