@@ -1,3 +1,4 @@
+import time
 import unittest
 
 from happybase_mock import Connection
@@ -46,25 +47,6 @@ class TestTable(unittest.TestCase):
             'd:age': ('20', 1)
         })
 
-    def test_get_multiple_rows(self):
-        self.table.put('01', {'d:name': 'One'}, timestamp=10)
-        self.table.put('02', {'d:name': 'Two'}, timestamp=20)
-        self.table.put('03', {'d:name': 'Three'}, timestamp=30)
-
-        self.assertEqual(self.table.rows(['03', '01', '02']), [
-            ('03', {'d:name': 'Three'}),
-            ('01', {'d:name': 'One'}),
-            ('02', {'d:name': 'Two'})
-        ])
-
-        # Include timestamps
-        self.assertEqual(
-            self.table.rows(['03', '01', '02'], include_timestamp=True), [
-                ('03', {'d:name': ('Three', 30)}),
-                ('01', {'d:name': ('One', 10)}),
-                ('02', {'d:name': ('Two', 20)})
-            ])
-
     def test_max_versions(self):
         # Default max_versions is 3
         self.table.put('01', {'d:name': 'Alice'}, timestamp=1)
@@ -93,6 +75,41 @@ class TestTable(unittest.TestCase):
             'd:name': 'Elsa',
             'd:email': 'elsa@example.com'
         })
+
+    def test_get_multiple_rows(self):
+        self.table.put('01', {'d:name': 'One'}, timestamp=10)
+        self.table.put('02', {'d:name': 'Two'}, timestamp=20)
+        self.table.put('03', {'d:name': 'Three'}, timestamp=30)
+
+        self.assertEqual(self.table.rows(['03', '01', '02']), [
+            ('03', {'d:name': 'Three'}),
+            ('01', {'d:name': 'One'}),
+            ('02', {'d:name': 'Two'})
+        ])
+
+        # Include timestamps
+        self.assertEqual(
+            self.table.rows(['03', '01', '02'], include_timestamp=True), [
+                ('03', {'d:name': ('Three', 30)}),
+                ('01', {'d:name': ('One', 10)}),
+                ('02', {'d:name': ('Two', 20)})
+            ])
+
+    def test_cells(self):
+        self.table.put('k', {'d:a': 'a1'}, timestamp=1)
+        self.table.put('k', {'d:a': 'a2'}, timestamp=2)
+        future_time = int((time.time() * 1000) * 2)
+        self.table.put('k', {'d:a': 'a999'}, timestamp=future_time)
+
+        self.assertEqual(self.table.cells('k', 'd:a'), ['a999', 'a2', 'a1'])
+        self.assertEqual(
+            self.table.cells('k', 'd:a', timestamp=time.time()), ['a2', 'a1'])
+
+        # Include timestamps
+        self.assertEqual(
+            self.table.cells('k', 'd:a', include_timestamp=True), [
+                ('a999', future_time), ('a2', 2), ('a1', 1)
+            ])
 
     def test_no_such_column_family(self):
         with self.assertRaises(IOError):

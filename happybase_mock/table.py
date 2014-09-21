@@ -71,7 +71,17 @@ class Table(object):
 
     def cells(self, row, column, versions=None, timestamp=None,
               include_timestamp=False):
-        pass
+        result = []
+        timestamps = sorted(self._data.get(row, {}).get(column, {}).keys(),
+                            reverse=True)
+        for ts in timestamps:
+            value = self._data[row][column][ts]
+            if timestamp is None or ts < timestamp:
+                if include_timestamp:
+                    result.append((value, ts))
+                else:
+                    result.append(value)
+        return result
 
     def scan(self, row_start=None, row_stop=None, row_prefix=None,
              columns=None, filter=None, timestamp=None,
