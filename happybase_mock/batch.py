@@ -1,20 +1,32 @@
+import functools
+
+
 class Batch(object):
 
     def __init__(self, table, timestamp=None, batch_size=None,
                  transaction=False, wal=True):
-        pass
+        self._table = table
+        self._timestamp = timestamp
+        self._partials = []
 
     def send(self):
-        pass
+        for p in self._partials:
+            p()
+        del self._partials[:]
 
-    def put(self, row, data, wal=None):
-        pass
+    def put(self, *args, **kwargs):
+        self._add_partial(self._table.put, *args, **kwargs)
 
-    def delete(self, row, columns=None, wal=None):
-        pass
+    def delete(self, *args, **kwargs):
+        self._add_partial(self._table.delete, *args, **kwargs)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
+
+    def _add_partial(self, func, *args, **kwargs):
+        kwargs['timestamp'] = self._timestamp
+        p = functools.partial(func, *args, **kwargs)
+        self._partials.append(p)

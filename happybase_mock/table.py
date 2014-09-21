@@ -1,5 +1,7 @@
 import time
 
+from .batch import Batch
+
 
 def _check_table_existence(method):
     def wrap(table, *args, **kwargs):
@@ -175,7 +177,7 @@ class Table(object):
 
     def batch(self, timestamp=None, batch_size=None, transaction=False,
               wal=True):
-        pass
+        return Batch(self, timestamp, batch_size, transaction, wal)
 
     def counter_get(self, row, column):
         pass
