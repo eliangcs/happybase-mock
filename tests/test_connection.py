@@ -104,3 +104,23 @@ class TestConnection(unittest.TestCase):
     def test_list_tables_with_prefix(self):
         self.conn = Connection(table_prefix='abc')
         self.test_list_tables()
+
+    def test_delete_table(self):
+        families = {'d': dict()}
+        self.conn.create_table('dog', families)
+        self.conn.create_table('fox', families)
+        self.assertEqual(self.conn.tables(), ['dog', 'fox'])
+
+        self.conn.delete_table('dog', disable=True)
+        self.assertEqual(self.conn.tables(), ['fox'])
+
+    def test_delete_non_existing_table(self):
+        with self.assertRaises(IOError):
+            self.conn.delete_table('no_such_table')
+
+    def test_delete_enabled_table(self):
+        families = {'d': dict()}
+        self.conn.create_table('game', families)
+
+        with self.assertRaises(IOError):
+            self.conn.delete_table('game')
