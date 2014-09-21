@@ -29,3 +29,41 @@ class TestConnectionSingleton(unittest.TestCase):
         conn1 = Connection(table_prefix='app')
         conn2 = Connection(table_prefix='app', table_prefix_separator='__')
         self.assertIsNot(conn1, conn2)
+
+
+class TestConnection(unittest.TestCase):
+
+    def test_create_table(self):
+        conn = Connection()
+        conn.create_table('contact', {
+            'd': {
+                'max_versions': 10,
+                'block_cache_enabled': True
+            },
+            'm': {}
+        })
+        table = conn.table('contact')
+        self.assertEqual(table.families(), {
+            'd': {
+                'block_cache_enabled': True,
+                'bloom_filter_nb_hashes': 0,
+                'bloom_filter_type': 'NONE',
+                'bloom_filter_vector_size': 0,
+                'compression': 'NONE',
+                'in_memory': False,
+                'max_versions': 10,
+                'name': 'd',
+                'time_to_live': -1
+            },
+            'm': {
+                'block_cache_enabled': False,
+                'bloom_filter_nb_hashes': 0,
+                'bloom_filter_type': 'NONE',
+                'bloom_filter_vector_size': 0,
+                'compression': 'NONE',
+                'in_memory': False,
+                'max_versions': 3,
+                'name': 'm',
+                'time_to_live': -1
+            }
+        })

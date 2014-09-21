@@ -1,3 +1,6 @@
+from .table import Table
+
+
 # Default values copied from happybase
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 9090
@@ -40,6 +43,9 @@ class Connection(object):
         self.table_prefix_separator = table_prefix_separator
         self.compat = compat
 
+        # key: table name, value: Table object
+        self._tables = {}
+
     def open(self):
         pass
 
@@ -54,13 +60,19 @@ class Connection(object):
         Connection._instances.pop(instance_id, None)
 
     def table(self, name, use_prefix=True):
-        pass
+        if use_prefix:
+            name = self._table_name(name)
+        return self._tables.get(name) or Table(name, self)
 
     def tables(self):
         pass
 
     def create_table(self, name, families):
-        pass
+        name = self._table_name(name)
+
+        table = Table(name, self)
+        table._set_families(families)
+        self._tables[name] = table
 
     def delete_table(self, name, disable=False):
         pass
@@ -76,3 +88,9 @@ class Connection(object):
 
     def compact_table(self, name, major=False):
         pass
+
+    def _table_name(self, name):
+        if self.table_prefix is None:
+            return name
+
+        return self.table_prefix + self.table_prefix_separator + name

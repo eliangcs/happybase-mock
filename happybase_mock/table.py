@@ -12,7 +12,7 @@ class Table(object):
         )
 
     def families(self):
-        pass
+        return self._families
 
     def regions(self):
         pass
@@ -55,3 +55,22 @@ class Table(object):
 
     def counter_dec(self, row, column, value=1):
         pass
+
+    def _set_families(self, families):
+        # Default family options
+        defaults = {
+            'block_cache_enabled': False,
+            'bloom_filter_nb_hashes': 0,
+            'bloom_filter_type': 'NONE',
+            'bloom_filter_vector_size': 0,
+            'compression': 'NONE',
+            'in_memory': False,
+            'max_versions': 3,
+            'time_to_live': -1
+        }
+        self._families = {}
+        for name, opts in families.iteritems():
+            family_options = defaults.copy()
+            family_options['name'] = name
+            family_options.update(opts)
+            self._families[name] = family_options
