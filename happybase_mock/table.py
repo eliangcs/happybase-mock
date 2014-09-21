@@ -15,6 +15,8 @@ class Table(object):
         self.name = name
         self.connection = connection
         self._enabled = True
+
+        # A multi-dimentional map, _data[rowkey][colname][timestamp] = value
         self._data = {}
 
     def __repr__(self):
