@@ -49,3 +49,19 @@ class TestTable(unittest.TestCase):
         self.assertEqual(self.table.row('01', timestamp=3), {'d:name': 'Bob'})
         self.assertEqual(self.table.row('01', timestamp=4), {'d:name': 'Cate'})
         self.assertEqual(self.table.row('01', timestamp=5), {'d:name': 'Dave'})
+
+    def test_get_partial_columns(self):
+        self.table.put('01', {
+            'd:name': 'Elisa',
+            'd:age': '20',
+            'd:sex': 'F'
+        }, timestamp=1)
+        self.table.put('01', {
+            'd:name': 'Elsa',
+            'd:email': 'elsa@example.com'
+        })
+        row = self.table.row('01', columns=('d:name', 'd:email'))
+        self.assertEqual(row, {
+            'd:name': 'Elsa',
+            'd:email': 'elsa@example.com'
+        })
