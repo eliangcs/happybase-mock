@@ -76,6 +76,11 @@ class TestTable(unittest.TestCase):
             'd:email': 'elsa@example.com'
         })
 
+    def test_get_future_timestamp(self):
+        future_time = int(time.time() * 1000 * 2)
+        self.table.put('k', {'d:a': 'data'}, timestamp=future_time)
+        self.assertEqual(self.table.row('k'), {'d:a': 'data'})
+
     def test_get_multiple_rows(self):
         self.table.put('01', {'d:name': 'One'}, timestamp=10)
         self.table.put('02', {'d:name': 'Two'}, timestamp=20)
@@ -98,7 +103,7 @@ class TestTable(unittest.TestCase):
     def test_cells(self):
         self.table.put('k', {'d:a': 'a1'}, timestamp=1)
         self.table.put('k', {'d:a': 'a2'}, timestamp=2)
-        future_time = int((time.time() * 1000) * 2)
+        future_time = int(time.time() * 1000 * 2)
         self.table.put('k', {'d:a': 'a999'}, timestamp=future_time)
 
         self.assertEqual(self.table.cells('k', 'd:a'), ['a999', 'a2', 'a1'])
