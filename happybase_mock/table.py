@@ -46,19 +46,28 @@ class Table(object):
                 if timestamp is None:
                     # Use latest version if timestamp isn't specified
                     ts = timestamps[0]
-                    result[colname] = cell[ts]
+                    if include_timestamp:
+                        result[colname] = cell[ts], ts
+                    else:
+                        result[colname] = cell[ts]
                 else:
                     # Find the first ts < timestamp
                     for ts in timestamps:
                         if ts < timestamp:
-                            result[colname] = cell[ts]
+                            if include_timestamp:
+                                result[colname] = cell[ts], ts
+                            else:
+                                result[colname] = cell[ts]
                             break
-
         return result
 
     def rows(self, rows, columns=None, timestamp=None,
              include_timestamp=False):
-        pass
+        result = []
+        for row in rows:
+            data = self.row(row, columns, timestamp, include_timestamp)
+            result.append((row, data))
+        return result
 
     def cells(self, row, column, versions=None, timestamp=None,
               include_timestamp=False):

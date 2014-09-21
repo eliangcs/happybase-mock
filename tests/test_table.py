@@ -37,6 +37,34 @@ class TestTable(unittest.TestCase):
             'd:sex': 'M'
         })
 
+    def test_get_include_timestamps(self):
+        self.table.put('01', {'d:name': 'John', 'd:age': '20'}, timestamp=1)
+        self.table.put('01', {'d:name': 'Joe'}, timestamp=2)
+
+        self.assertEqual(self.table.row('01', include_timestamp=True), {
+            'd:name': ('Joe', 2),
+            'd:age': ('20', 1)
+        })
+
+    def test_get_multiple_rows(self):
+        self.table.put('01', {'d:name': 'One'}, timestamp=10)
+        self.table.put('02', {'d:name': 'Two'}, timestamp=20)
+        self.table.put('03', {'d:name': 'Three'}, timestamp=30)
+
+        self.assertEqual(self.table.rows(['03', '01', '02']), [
+            ('03', {'d:name': 'Three'}),
+            ('01', {'d:name': 'One'}),
+            ('02', {'d:name': 'Two'})
+        ])
+
+        # Include timestamps
+        self.assertEqual(
+            self.table.rows(['03', '01', '02'], include_timestamp=True), [
+                ('03', {'d:name': ('Three', 30)}),
+                ('01', {'d:name': ('One', 10)}),
+                ('02', {'d:name': ('Two', 20)})
+            ])
+
     def test_max_versions(self):
         # Default max_versions is 3
         self.table.put('01', {'d:name': 'Alice'}, timestamp=1)
