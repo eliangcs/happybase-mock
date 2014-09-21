@@ -65,7 +65,15 @@ class Connection(object):
         return self._tables.get(name) or Table(name, self)
 
     def tables(self):
-        pass
+        names = self._tables.keys()
+
+        # Filter using prefix, and strip prefix from names
+        if self.table_prefix is not None:
+            prefix = self._table_name('')
+            offset = len(prefix)
+            names = [n[offset:] for n in names if n.startswith(prefix)]
+
+        return sorted(names)
 
     def create_table(self, name, families):
         name = self._table_name(name)

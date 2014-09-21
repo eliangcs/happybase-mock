@@ -92,3 +92,15 @@ class TestConnection(unittest.TestCase):
         # Although it's odd, Connection.is_table_enabled() returns true on
         # non-existing table
         self.assertTrue(self.conn.is_table_enabled('no_such_table'))
+
+    def test_list_tables(self):
+        families = {'d': dict()}
+        self.conn.create_table('apple', families)
+        self.conn.create_table('book', families)
+        self.conn.create_table('cat', families)
+
+        self.assertEqual(self.conn.tables(), ['apple', 'book', 'cat'])
+
+    def test_list_tables_with_prefix(self):
+        self.conn = Connection(table_prefix='abc')
+        self.test_list_tables()
