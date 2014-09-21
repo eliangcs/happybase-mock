@@ -120,6 +120,8 @@ class TestConnection(unittest.TestCase):
         with self.assertRaises(IOError):
             table.put('test', {})
 
+        self.assertFalse(self.conn.tables())
+
     def test_delete_table(self):
         families = {'d': dict()}
         self.conn.create_table('dog', families)
