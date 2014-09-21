@@ -161,3 +161,30 @@ class TestTable(unittest.TestCase):
         self.assertEqual(self.table.row('key', timestamp=3), {
             'd:c': 'c2'
         })
+
+    def test_scan(self):
+        for i in xrange(1, 10):
+            self.table.put(str(i), {'d:count': str(i)}, timestamp=i)
+
+        # Scan all
+        self.assertEqual(len(list(self.table.scan())), 9)
+
+        # Prefix scan
+        self.assertEqual(list(self.table.scan(row_prefix='2')), [
+            ('2', {'d:count': '2'})
+        ])
+        self.assertEqual(
+            list(self.table.scan(row_prefix='3', include_timestamp=True)),
+            [('3', {'d:count': ('3', 3)})])
+
+        # Range scan
+        self.assertEqual(list(self.table.scan(row_start='4', row_stop='6')), [
+            ('4', {'d:count': '4'}), ('5', {'d:count': '5'})
+        ])
+        self.assertEqual(list(self.table.scan(row_start='8')), [
+            ('8', {'d:count': '8'}), ('9', {'d:count': '9'})
+        ])
+
+    def test_scan_invalid_arguments(self):
+        with self.assertRaises(TypeError):
+            self.table.scan(row_start='1', row_stop='2', row_prefix='3')

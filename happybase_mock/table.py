@@ -9,6 +9,14 @@ def _check_table_existence(method):
     return wrap
 
 
+# Copied from happybase.util
+def _str_increment(s):
+    for i in xrange(len(s) - 1, -1, -1):
+        if s[i] != '\xff':
+            return s[:i] + chr(ord(s[i]) + 1)
+    return None
+
+
 class Table(object):
 
     def __init__(self, name, connection):
@@ -84,10 +92,30 @@ class Table(object):
         return result
 
     def scan(self, row_start=None, row_stop=None, row_prefix=None,
-             columns=None, filter=None, timestamp=None,
-             include_timestamp=False, batch_size=1000, scan_batching=None,
-             limit=None, sorted_columns=False):
-        pass
+             columns=None, timestamp=None, include_timestamp=False,
+             batch_size=1000, scan_batching=None, limit=None,
+             sorted_columns=False, **kwargs):
+        if row_prefix is not None:
+            if row_start is not None or row_stop is not None:
+                raise TypeError(
+                    "'row_prefix' cannot be combined with 'row_start' "
+                    "or 'row_stop'")
+
+            row_start = row_prefix
+            row_stop = _str_increment(row_prefix)
+
+        if row_start is None:
+            row_start = ''
+
+        rows = filter(lambda k: k >= row_start, self._data)
+        if row_stop is not None:
+            rows = filter(lambda k: k < row_stop, rows)
+
+        result = sorted([
+            (row, self.row(row, columns, timestamp, include_timestamp))
+            for row in rows
+        ])
+        return iter(result)
 
     @_check_table_existence
     def put(self, row, data, timestamp=None, wal=True):
