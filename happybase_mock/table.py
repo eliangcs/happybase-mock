@@ -1,9 +1,13 @@
+import time
+
+
 class Table(object):
 
     def __init__(self, name, connection):
         self.name = name
         self.connection = connection
         self._enabled = True
+        self._data = {}
 
     def __repr__(self):
         return '<%s.%s name=%r>' % (
@@ -19,7 +23,18 @@ class Table(object):
         pass
 
     def row(self, row, columns=None, timestamp=None, include_timestamp=False):
-        pass
+        data = self._data.get(row, {})
+        result = {}
+
+        if not columns:
+            columns = data.keys()
+
+        for colname in columns:
+            if colname in data:
+                last_timestamp = sorted(data[colname].keys())[-1]
+                result[colname] = data[colname][last_timestamp]
+
+        return result
 
     def rows(self, rows, columns=None, timestamp=None,
              include_timestamp=False):
@@ -36,7 +51,27 @@ class Table(object):
         pass
 
     def put(self, row, data, timestamp=None, wal=True):
-        pass
+        # Check data against column families
+        for colname in data:
+            cf = colname.split(':')[0]
+            if cf not in self._families:
+                raise IOError('NoSuchColumnFamilyException: %s' % cf)
+
+        if timestamp is None:
+            timestamp = int(time.time() * 1000)
+
+        columns = self._data.get(row)
+        if columns is None:
+            columns = {}
+            self._data[row] = columns
+
+        for colname, value in data.iteritems():
+            column = columns.get(colname)
+            if column is None:
+                column = {}
+                columns[colname] = column
+
+            column[timestamp] = value
 
     def delete(self, row, columns=None, timestamp=None, wal=True):
         pass
