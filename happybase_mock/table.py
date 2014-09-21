@@ -39,8 +39,16 @@ class Table(object):
 
         for colname in columns:
             if colname in data:
-                last_timestamp = sorted(data[colname].keys())[-1]
-                result[colname] = data[colname][last_timestamp]
+                timestamps = sorted(data[colname].keys(), reverse=True)
+                if timestamp is None:
+                    # Use latest version if timestamp isn't specified
+                    ts = timestamps[0]
+                else:
+                    # Find the first ts < timestamp
+                    for ts in timestamps:
+                        if ts < timestamp:
+                            break
+                result[colname] = data[colname][ts]
 
         return result
 
@@ -82,6 +90,13 @@ class Table(object):
 
             column[timestamp] = value
 
+            # Check if it exceeds max_versions
+            cf = colname.split(':')[0]
+            max_versions = self._max_versions(cf)
+            if len(column) > max_versions:
+                # Delete cell with minimum timestamp
+                del column[min(column.keys())]
+
     def delete(self, row, columns=None, timestamp=None, wal=True):
         pass
 
@@ -100,6 +115,9 @@ class Table(object):
 
     def counter_dec(self, row, column, value=1):
         pass
+
+    def _max_versions(self, cf):
+        return self._families[cf]['max_versions']
 
     def _set_families(self, families):
         # Default family options
