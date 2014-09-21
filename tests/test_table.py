@@ -42,9 +42,10 @@ class TestTable(unittest.TestCase):
         self.table.put('01', {'d:name': 'Alice'}, timestamp=1)
         self.table.put('01', {'d:name': 'Bob'}, timestamp=2)
         self.table.put('01', {'d:name': 'Cate'}, timestamp=3)
-        self.table.put('01', {'d:name': 'David'}, timestamp=4)
+        self.table.put('01', {'d:name': 'Dave'}, timestamp=4)
 
         self.assertEqual(self.table.row('01', timestamp=1), {'d:name': 'Bob'})
         self.assertEqual(self.table.row('01', timestamp=2), {'d:name': 'Bob'})
         self.assertEqual(self.table.row('01', timestamp=3), {'d:name': 'Bob'})
         self.assertEqual(self.table.row('01', timestamp=4), {'d:name': 'Cate'})
+        self.assertEqual(self.table.row('01', timestamp=5), {'d:name': 'Dave'})
