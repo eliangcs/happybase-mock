@@ -3,6 +3,7 @@ class Table(object):
     def __init__(self, name, connection):
         self.name = name
         self.connection = connection
+        self._enabled = True
 
     def __repr__(self):
         return '<%s.%s name=%r>' % (

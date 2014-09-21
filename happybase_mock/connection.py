@@ -78,13 +78,28 @@ class Connection(object):
         pass
 
     def enable_table(self, name):
-        pass
+        name = self._table_name(name)
+        try:
+            table = self._tables[name]
+        except KeyError:
+            raise IOError('TableNotFoundException: %s', name)
+        table._enabled = True
 
     def disable_table(self, name):
-        pass
+        name = self._table_name(name)
+        try:
+            table = self._tables[name]
+        except KeyError:
+            raise IOError('TableNotFoundException: %s' % name)
+        table._enabled = False
 
     def is_table_enabled(self, name):
-        pass
+        name = self._table_name(name)
+        try:
+            table = self._tables[name]
+        except KeyError:
+            return True
+        return table._enabled
 
     def compact_table(self, name, major=False):
         pass

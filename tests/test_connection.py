@@ -33,16 +33,18 @@ class TestConnectionSingleton(unittest.TestCase):
 
 class TestConnection(unittest.TestCase):
 
+    def setUp(self):
+        self.conn = Connection()
+
     def test_create_table(self):
-        conn = Connection()
-        conn.create_table('contact', {
+        self.conn.create_table('contact', {
             'd': {
                 'max_versions': 10,
                 'block_cache_enabled': True
             },
             'm': {}
         })
-        table = conn.table('contact')
+        table = self.conn.table('contact')
         self.assertEqual(table.families(), {
             'd': {
                 'block_cache_enabled': True,
@@ -67,3 +69,26 @@ class TestConnection(unittest.TestCase):
                 'time_to_live': -1
             }
         })
+
+    def test_enable_disable_table(self):
+        self.conn.create_table('mytable', {'d': dict()})
+        self.assertTrue(self.conn.is_table_enabled('mytable'))
+
+        self.conn.disable_table('mytable')
+        self.assertFalse(self.conn.is_table_enabled('mytable'))
+
+        self.conn.enable_table('mytable')
+        self.assertTrue(self.conn.is_table_enabled('mytable'))
+
+    def test_enable_non_existing_table(self):
+        with self.assertRaises(IOError):
+            self.conn.enable_table('no_such_table')
+
+    def test_disable_non_existing_table(self):
+        with self.assertRaises(IOError):
+            self.conn.disable_table('no_such_table')
+
+    def test_is_non_existing_table_enabled(self):
+        # Although it's odd, Connection.is_table_enabled() returns true on
+        # non-existing table
+        self.assertTrue(self.conn.is_table_enabled('no_such_table'))
