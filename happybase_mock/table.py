@@ -6,7 +6,7 @@ from .batch import Batch
 
 def _check_table_existence(method):
     def wrap(table, *args, **kwargs):
-        if table.name not in table.connection._tables:
+        if not table._exists():
             raise IOError('TableNotFoundException: %s' % table.name)
         return method(table, *args, **kwargs)
     return wrap
@@ -44,7 +44,11 @@ class Table(object):
         return self._families
 
     def regions(self):
-        # TODO: Return empty list if table doesn't exist
+        if not self._exists():
+            return []
+
+        # Table.regions() is meaningless for in-memory mocking, so just return
+        # some fake data
         return [{
             'end_key': '',
             'id': 1,
@@ -220,6 +224,9 @@ class Table(object):
     def counter_dec(self, row, column, value=1):
         orig_value = self.counter_get(row, column)
         self.counter_set(row, column, orig_value - value)
+
+    def _exists(self):
+        return self.name in self.connection._tables
 
     def _max_versions(self, cf):
         return self._families[cf]['max_versions']

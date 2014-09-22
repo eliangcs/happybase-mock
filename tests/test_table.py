@@ -22,6 +22,10 @@ class TestTable(unittest.TestCase):
         self.assertEqual(len(regions), 1)
         self.assertTrue(regions[0].get('name'))
 
+        # Test non-existing table
+        table = self.conn.table('no_such_table')
+        self.assertEqual(table.regions(), [])
+
     def test_put_and_get(self):
         self.table.put('john', {'d:name': 'John'})
         self.assertEqual(self.table.row('john'), {
