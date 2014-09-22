@@ -225,3 +225,22 @@ class TestTable(unittest.TestCase):
     def test_scan_invalid_arguments(self):
         with self.assertRaises(TypeError):
             self.table.scan(row_start='1', row_stop='2', row_prefix='3')
+
+    def test_counter(self):
+        # Counter is 0 if the row/column does not exist
+        self.assertEqual(self.table.counter_get('tina', 'd:age'), 0)
+
+        self.table.counter_set('tina', 'd:age', 20)
+        self.assertEqual(self.table.counter_get('tina', 'd:age'), 20)
+
+        # Internal representation should be an 8-byte signed integer in big
+        # endian
+        self.assertEqual(self.table.row('tina'), {
+            'd:age': '\x00\x00\x00\x00\x00\x00\x00\x14'
+        })
+
+        self.table.counter_inc('tina', 'd:age', value=5)
+        self.assertEqual(self.table.counter_get('tina', 'd:age'), 25)
+
+        self.table.counter_dec('tina', 'd:age', value=30)
+        self.assertEqual(self.table.counter_get('tina', 'd:age'), -5)

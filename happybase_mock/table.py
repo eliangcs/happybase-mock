@@ -1,3 +1,4 @@
+import struct
 import time
 
 from .batch import Batch
@@ -190,16 +191,25 @@ class Table(object):
         return Batch(self, timestamp, batch_size, transaction, wal)
 
     def counter_get(self, row, column):
-        pass
+        # Decode as long integer, big endian
+        value = self.row(row, (column,)).get(column)
+        if not value:
+            return 0
+        return struct.unpack('>q', value)[0]
 
     def counter_set(self, row, column, value=0):
-        pass
+        # Encode as long integer, big endian
+        value = struct.pack('>q', value)
+        self.delete(row, (column,))
+        self.put(row, {column: value})
 
     def counter_inc(self, row, column, value=1):
-        pass
+        orig_value = self.counter_get(row, column)
+        self.counter_set(row, column, orig_value + value)
 
     def counter_dec(self, row, column, value=1):
-        pass
+        orig_value = self.counter_get(row, column)
+        self.counter_set(row, column, orig_value - value)
 
     def _max_versions(self, cf):
         return self._families[cf]['max_versions']
