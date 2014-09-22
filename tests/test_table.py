@@ -11,6 +11,10 @@ class TestTable(unittest.TestCase):
         self.conn.create_table('person', {'d': dict()})
         self.table = self.conn.table('person')
 
+    def test_repr(self):
+        self.assertEqual(repr(self.table),
+                         "<happybase_mock.table.Table name='person'>")
+
     def test_put_and_get(self):
         self.table.put('john', {'d:name': 'John'})
         self.assertEqual(self.table.row('john'), {
