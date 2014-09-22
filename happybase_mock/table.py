@@ -39,10 +39,12 @@ class Table(object):
             self.name,
         )
 
+    @_check_table_existence
     def families(self):
         return self._families
 
     def regions(self):
+        # TODO: Return empty list if table doesn't exist
         return [{
             'end_key': '',
             'id': 1,
@@ -53,6 +55,7 @@ class Table(object):
             'version': 1
         }]
 
+    @_check_table_existence
     def row(self, row, columns=None, timestamp=None, include_timestamp=False):
         data = self._data.get(row, {})
         result = {}
@@ -82,6 +85,7 @@ class Table(object):
                             break
         return result
 
+    @_check_table_existence
     def rows(self, rows, columns=None, timestamp=None,
              include_timestamp=False):
         result = []
@@ -90,6 +94,7 @@ class Table(object):
             result.append((row, data))
         return result
 
+    @_check_table_existence
     def cells(self, row, column, versions=None, timestamp=None,
               include_timestamp=False):
         result = []
@@ -104,6 +109,7 @@ class Table(object):
                     result.append(value)
         return result
 
+    @_check_table_existence
     def scan(self, row_start=None, row_stop=None, row_prefix=None,
              columns=None, timestamp=None, include_timestamp=False,
              batch_size=1000, scan_batching=None, limit=None,
@@ -161,6 +167,7 @@ class Table(object):
                 # Delete cell with minimum timestamp
                 del column[min(column.keys())]
 
+    @_check_table_existence
     def delete(self, row, columns=None, timestamp=None, wal=True):
         if not columns and timestamp is None:
             # Delete whole row
@@ -197,16 +204,19 @@ class Table(object):
             return 0
         return struct.unpack('>q', value)[0]
 
+    @_check_table_existence
     def counter_set(self, row, column, value=0):
         # Encode as long integer, big endian
         value = struct.pack('>q', value)
         self.delete(row, (column,))
         self.put(row, {column: value})
 
+    @_check_table_existence
     def counter_inc(self, row, column, value=1):
         orig_value = self.counter_get(row, column)
         self.counter_set(row, column, orig_value + value)
 
+    @_check_table_existence
     def counter_dec(self, row, column, value=1):
         orig_value = self.counter_get(row, column)
         self.counter_set(row, column, orig_value - value)
