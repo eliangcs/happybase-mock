@@ -39,3 +39,18 @@ TIP: You can also use Mock_ library to help you patch HappyBase_ on runtime.
 .. _HappyBase: https://github.com/wbolster/happybase
 .. _HBase: http://hbase.apache.org/
 .. _Mock: http://www.voidspace.org.uk/python/mock/
+
+
+Contribute
+----------
+
+Running Tests
+~~~~~~~~~~~~~
+
+Install test requirements::
+
+    pip install -r requirements-test.txt
+
+Then run the test::
+
+    py.test
