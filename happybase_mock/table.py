@@ -13,10 +13,12 @@ def _check_table_existence(method):
 
 # Copied from happybase.util
 def _str_increment(s):
+    result = None
     for i in xrange(len(s) - 1, -1, -1):
         if s[i] != '\xff':
-            return s[:i] + chr(ord(s[i]) + 1)
-    return None
+            result = s[:i] + chr(ord(s[i]) + 1)
+            break
+    return result
 
 
 class Table(object):
