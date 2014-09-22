@@ -4,8 +4,8 @@ happybase-mock
 A mocking library for HappyBase_.
 
 Installing HBase_ is not easy. Running HBase_ also costs high system resource.
-This library simulates HappyBase_ API in local memory. This is handy if you
-want to do fast in-memory testing.
+This library simulates HappyBase_ API in local memory, so you don't have to
+set up HBase_. This is handy if you want to do fast in-memory testing.
 
 
 Installation
