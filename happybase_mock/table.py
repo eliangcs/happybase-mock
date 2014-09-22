@@ -42,7 +42,15 @@ class Table(object):
         return self._families
 
     def regions(self):
-        pass
+        return [{
+            'end_key': '',
+            'id': 1,
+            'name': '%s,,1.1234' % self.name,
+            'port': 60000,
+            'server_name': 'localhost',
+            'start_key': '',
+            'version': 1
+        }]
 
     def row(self, row, columns=None, timestamp=None, include_timestamp=False):
         data = self._data.get(row, {})

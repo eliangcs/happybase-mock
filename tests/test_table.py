@@ -15,6 +15,13 @@ class TestTable(unittest.TestCase):
         self.assertEqual(repr(self.table),
                          "<happybase_mock.table.Table name='person'>")
 
+    def test_regions(self):
+        # Table.regions() is meaningless for in-memory mock, it only returns
+        # a fixed data
+        regions = self.table.regions()
+        self.assertEqual(len(regions), 1)
+        self.assertTrue(regions[0].get('name'))
+
     def test_put_and_get(self):
         self.table.put('john', {'d:name': 'John'})
         self.assertEqual(self.table.row('john'), {
