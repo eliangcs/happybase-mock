@@ -1,6 +1,15 @@
 HappyBase-mock
 ==============
 
+.. image:: https://badge.fury.io/py/happybase-mock.svg
+    :target: http://badge.fury.io/py/happybase-mock
+
+.. image:: https://travis-ci.org/eliangcs/happybase-mock.svg?branch=master
+    :target: https://travis-ci.org/eliangcs/happybase-mock
+
+.. image:: https://coveralls.io/repos/eliangcs/happybase-mock/badge.png?branch=master
+    :target: https://coveralls.io/r/eliangcs/happybase-mock
+
 A mocking library for HappyBase_.
 
 Installing HBase_ is not easy. Running HBase_ also costs high system resource.
