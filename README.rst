@@ -1,4 +1,4 @@
-happybase-mock
+HappyBase-mock
 ==============
 
 A mocking library for HappyBase_.
