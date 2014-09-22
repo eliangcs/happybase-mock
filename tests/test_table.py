@@ -153,7 +153,7 @@ class TestTable(unittest.TestCase):
         self.table.delete('1', columns=('d:age', 'd:sex'))
         self.assertEqual(self.table.row('1'), {'d:name': 'Harry'})
 
-    def test_delete_some_timestamps(self):
+    def test_delete_columns_and_timestamp(self):
         # Create a row like this:
         #     d:a   d:b   d:c
         #  1   a1    b1    c1
@@ -176,6 +176,28 @@ class TestTable(unittest.TestCase):
         self.assertEqual(self.table.row('key', timestamp=3), {
             'd:c': 'c2'
         })
+
+    def test_delete_timestamp(self):
+        # Create a row like this:
+        #     d:a   d:b   d:c
+        #  1   a1    b1    c1
+        #  2   a2    b2    c2
+        #  3   a3    b3    c3
+        for i in xrange(1, 4):
+            self.table.put('key', {
+                'd:a': 'a%d' % i, 'd:b': 'b%d' % i, 'd:c': 'c%d' % i
+            }, timestamp=i)
+
+        # Delete timestamp <= 2:
+        #     d:a   d:b   d:c
+        #  1
+        #  2
+        #  3   a3    b3    c3
+        self.table.delete('key', timestamp=2)
+        self.assertEqual(self.table.row('key'), {
+            'd:a': 'a3', 'd:b': 'b3', 'd:c': 'c3'
+        })
+        self.assertEqual(self.table.row('key', timestamp=3), {})
 
     def test_scan(self):
         for i in xrange(1, 10):
