@@ -1,5 +1,41 @@
 happybase-mock
 ==============
 
-A mocking library for happybase.
+A mocking library for HappyBase_.
 
+Installing HBase_ is not easy. Running HBase_ also costs high system resource.
+This library simulates HappyBase_ API in local memory. This is handy if you
+want to do fast in-memory testing.
+
+
+Installation
+------------
+
+To install HappyBase-mock, just do::
+
+    pip install happybase-mock
+
+
+Usage
+-----
+
+The API and package structure of HappyBase-mock is a mimic of HappyBase_. They
+are almost identical, so you can use it like you normally would do in
+HappyBase_.
+
+For example, you can replace ``happybase`` package with ``happybase_mock``.
+Then all of the operations will be performed in memory::
+
+    import happybase_mock as happybase
+
+    pool = happybase.ConnectionPool(host='localhost', table_prefix='app')
+    with pool.connection() as conn:
+        table = conn.table('table_name')
+        table.put('rowkey', {'d:data': 'value'})
+
+TIP: You can also use Mock_ library to help you patch HappyBase_ on runtime.
+
+
+.. _HappyBase: https://github.com/wbolster/happybase
+.. _HBase: http://hbase.apache.org/
+.. _Mock: http://www.voidspace.org.uk/python/mock/
