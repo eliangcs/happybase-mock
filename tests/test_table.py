@@ -58,6 +58,10 @@ class TestTable(unittest.TestCase):
             'd:age': ('20', 1)
         })
 
+        self.assertEqual(
+            self.table.row('01', timestamp=2, include_timestamp=True),
+            {'d:name': ('John', 1), 'd:age': ('20', 1)})
+
     def test_max_versions(self):
         # Default max_versions is 3
         self.table.put('01', {'d:name': 'Alice'}, timestamp=1)
