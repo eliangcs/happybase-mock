@@ -46,11 +46,16 @@ class Connection(object):
         # key: table name, value: Table object
         self._tables = {}
 
+        # TODO: check if connection is opened on some methods
+        self._opened = False
+        if autoconnect:
+            self.open()
+
     def open(self):
-        pass
+        self._opened = True
 
     def close(self):
-        pass
+        self._opened = False
 
     def __del__(self):
         # Delete self from Connection._instances
