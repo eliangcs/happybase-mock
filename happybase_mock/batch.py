@@ -24,7 +24,7 @@ class Batch(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        pass
+        self.send()
 
     def _add_partial(self, func, *args, **kwargs):
         kwargs['timestamp'] = self._timestamp

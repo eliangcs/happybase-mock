@@ -40,3 +40,16 @@ class TestBatch(unittest.TestCase):
             ('godfather', {'d:title': 'The Godfather'}),
             ('inception', {'d:title': 'Inception'})
         ])
+
+    def test_context_manager(self):
+        # Mutations is automatically sent at the end of `with` block
+        with self.table.batch() as batch:
+            batch.put('wizofoz', {'d:title': 'The Wizard of Oz'})
+            batch.put('frozen', {'d:title': 'Frozen'})
+            batch.put('goodfellas', {'d:title': 'Goodfellas'})
+            batch.delete('wizofoz')
+
+        self.assertEqual(list(self.table.scan()), [
+            ('frozen', {'d:title': 'Frozen'}),
+            ('goodfellas', {'d:title': 'Goodfellas'})
+        ])
