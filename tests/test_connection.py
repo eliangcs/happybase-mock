@@ -1,9 +1,11 @@
-import unittest
-
+from .base import BaseTestCase
 from happybase_mock import Connection
 
 
-class TestConnectionSingleton(unittest.TestCase):
+class TestConnectionSingleton(BaseTestCase):
+
+    def tearDown(self):
+        Connection._instances.clear()
 
     def test_same_host_port(self):
         conn1 = Connection(host='myhost', port=9000)
@@ -48,7 +50,10 @@ class TestConnectionSingleton(unittest.TestCase):
         self.assertIsNot(conn1, conn2)
 
 
-class TestConnection(unittest.TestCase):
+class TestConnection(BaseTestCase):
+
+    def tearDown(self):
+            Connection._instances.clear()
 
     def setUp(self):
         self.conn = Connection()

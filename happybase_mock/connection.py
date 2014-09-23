@@ -44,7 +44,8 @@ class Connection(object):
         self.compat = compat
 
         # key: table name, value: Table object
-        self._tables = {}
+        if not hasattr(self, '_tables'):
+            self._tables = {}
 
         # TODO: check if connection is opened on some methods
         self._opened = False

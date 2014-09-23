@@ -1,9 +1,8 @@
-import unittest
-
+from .base import BaseTestCase
 from happybase_mock import Connection
 
 
-class TestBatch(unittest.TestCase):
+class TestBatch(BaseTestCase):
 
     def setUp(self):
         self.conn = Connection()

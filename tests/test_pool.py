@@ -1,9 +1,11 @@
-import unittest
+from .base import BaseTestCase
+from happybase_mock.pool import Connection, ConnectionPool
 
-from happybase_mock.pool import ConnectionPool
 
+class TestConnectionPool(BaseTestCase):
 
-class TestConnectionPool(unittest.TestCase):
+    def tearDown(self):
+        Connection._instances.clear()
 
     def test_connection(self):
         pool = ConnectionPool(5, host='myhost', port=9999, table_prefix='test')

@@ -1,10 +1,10 @@
 import time
-import unittest
 
+from .base import BaseTestCase
 from happybase_mock import Connection
 
 
-class TestTable(unittest.TestCase):
+class TestTable(BaseTestCase):
 
     def setUp(self):
         self.conn = Connection()
