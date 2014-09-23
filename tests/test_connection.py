@@ -146,6 +146,11 @@ class TestConnection(BaseTestCase):
         self.conn.delete_table('dog', disable=True)
         self.assertEqual(self.conn.tables(), ['fox'])
 
+    def test_delete_table_with_prefix(self):
+        conn = Connection(table_prefix='123')
+        conn.create_table('jacket', {'d': dict()})
+        conn.delete_table('jacket', disable=True)
+
     def test_delete_non_existing_table(self):
         with self.assertRaises(IOError):
             self.conn.delete_table('no_such_table')

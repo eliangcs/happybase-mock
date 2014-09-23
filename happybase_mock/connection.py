@@ -89,8 +89,8 @@ class Connection(object):
         self._tables[name] = table
 
     def delete_table(self, name, disable=False):
-        name = self._table_name(name)
-        table = self._tables.get(name)
+        fullname = self._table_name(name)
+        table = self._tables.get(fullname)
         if not table:
             raise IOError('table does not exist')
 
@@ -100,7 +100,7 @@ class Connection(object):
         if self.is_table_enabled(name):
             raise IOError('TableNotDisabledException: %s' % name)
 
-        del self._tables[name]
+        del self._tables[fullname]
 
     def enable_table(self, name):
         name = self._table_name(name)
