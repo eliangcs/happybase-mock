@@ -30,6 +30,16 @@ class TestConnectionSingleton(unittest.TestCase):
         conn2 = Connection(table_prefix='app', table_prefix_separator='__')
         self.assertIsNot(conn1, conn2)
 
+    def test_keep_tables(self):
+        conn = Connection(table_prefix='abc')
+        conn.create_table('table1', {'d': dict()})
+
+        conn = Connection(table_prefix='abc')
+        self.assertEqual(conn.tables(), ['table1'])
+
+        table = conn.table('table1')
+        self.assertEqual(table.name, 'abc_table1')
+
     def test_del(self):
         conn1 = Connection()
         conn1.__del__()
