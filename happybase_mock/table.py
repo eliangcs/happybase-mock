@@ -1,5 +1,7 @@
 import struct
 import time
+from six.moves import xrange
+from six import iteritems
 
 from .batch import Batch
 
@@ -156,7 +158,7 @@ class Table(object):
             columns = {}
             self._data[row] = columns
 
-        for colname, value in data.iteritems():
+        for colname, value in iteritems(data):
             column = columns.get(colname)
             if column is None:
                 column = {}
@@ -244,7 +246,7 @@ class Table(object):
             'time_to_live': -1
         }
         self._families = {}
-        for name, opts in families.iteritems():
+        for name, opts in iteritems(families):
             family_options = defaults.copy()
             family_options['name'] = name
             family_options.update(opts)
