@@ -1,17 +1,18 @@
 from .table import Table
 
-
 # Default values copied from happybase
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 9090
 DEFAULT_TRANSPORT = 'buffered'
 DEFAULT_COMPAT = '0.96'
 
+class _Singleton(type):
+    """A python 2/3 compatible Singleton class
+    Reference: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
 
-class Connection(object):
-
-    # A dict that stores singleton instances, where key is
-    # 'host:port/table_prefix', value is Connection object
+    A dict that stores singleton instances, where key is
+    'host:port/table_prefix', value is Connection object
+    """
     _instances = {}
 
     @classmethod
@@ -24,13 +25,15 @@ class Connection(object):
 
         return '%s:%s/%s' % (host, port, table_prefix)
 
-    def __new__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs):
         instance_id = cls._get_instance_id(**kwargs)
         if instance_id not in cls._instances:
-            cls._instances[instance_id] = (
-                super(Connection, cls).__new__(cls, *args, **kwargs))
-
+            cls._instances[instance_id] = super(_Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[instance_id]
+
+class Singleton(_Singleton('SingletonMeta', (object,), {})): pass
+
+class Connection(Singleton):
 
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, timeout=None,
                  autoconnect=True, table_prefix=None,
