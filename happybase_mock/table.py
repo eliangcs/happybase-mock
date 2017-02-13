@@ -16,12 +16,13 @@ def _check_table_existence(method):
 
 # Copied from happybase.util
 def _str_increment(s):
+    s = s.decode('utf-8')
     result = None
     for i in xrange(len(s) - 1, -1, -1):
         if s[i] != '\xff':
             result = s[:i] + chr(ord(s[i]) + 1)
             break
-    return result
+    return result.encode('utf-8')
 
 
 class Table(object):
@@ -130,7 +131,7 @@ class Table(object):
             row_stop = _str_increment(row_prefix)
 
         if row_start is None:
-            row_start = ''
+            row_start = b''
 
         rows = filter(lambda k: k >= row_start, self._data)
         if row_stop is not None:
@@ -146,7 +147,7 @@ class Table(object):
     def put(self, row, data, timestamp=None, wal=True):
         # Check data against column families
         for colname in data:
-            cf = colname.split(':')[0]
+            cf = colname.decode('utf-8').split(':')[0]
             if cf not in self._families:
                 raise IOError('NoSuchColumnFamilyException: %s' % cf)
 
@@ -167,7 +168,7 @@ class Table(object):
             column[timestamp] = value
 
             # Check if it exceeds max_versions
-            cf = colname.split(':')[0]
+            cf = colname.decode('utf-8').split(':')[0]
             max_versions = self._max_versions(cf)
             if len(column) > max_versions:
                 # Delete cell with minimum timestamp
