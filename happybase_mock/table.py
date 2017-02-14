@@ -16,7 +16,8 @@ def _check_table_existence(method):
 
 # Copied from happybase.util
 def _str_increment(s):
-    s = s.decode('utf-8')
+    if not isinstance(s, str):
+        s = s.decode('utf-8')
     result = None
     for i in xrange(len(s) - 1, -1, -1):
         if s[i] != '\xff':
@@ -64,6 +65,8 @@ class Table(object):
 
     @_check_table_existence
     def row(self, row, columns=None, timestamp=None, include_timestamp=False):
+        if not isinstance(row, bytes):
+            row = row.encode('utf-8')
         data = self._data.get(row, {})
         result = {}
 
@@ -104,6 +107,10 @@ class Table(object):
     @_check_table_existence
     def cells(self, row, column, versions=None, timestamp=None,
               include_timestamp=False):
+        if not isinstance(row, bytes):
+            row = row.encode('utf-8')
+        if not isinstance(column, bytes):
+            column = column.encode('utf-8')
         result = []
         timestamps = sorted(self._data.get(row, {}).get(column, {}).keys(),
                             reverse=True)
@@ -122,6 +129,8 @@ class Table(object):
              batch_size=1000, scan_batching=None, limit=None,
              sorted_columns=False, **kwargs):
         if row_prefix is not None:
+            if not isinstance(row_prefix, bytes):
+                row_prefix = row_prefix.encode('utf-8')
             if row_start is not None or row_stop is not None:
                 raise TypeError(
                     "'row_prefix' cannot be combined with 'row_start' "
@@ -132,9 +141,14 @@ class Table(object):
 
         if row_start is None:
             row_start = b''
+        else:
+            if not isinstance(row_start, bytes):
+                row_start = row_start.encode('utf-8')
 
         rows = filter(lambda k: k >= row_start, self._data)
         if row_stop is not None:
+            if not isinstance(row_stop, bytes):
+                row_stop = row_stop.encode('utf-8')
             rows = filter(lambda k: k < row_stop, rows)
 
         result = sorted([
@@ -145,6 +159,15 @@ class Table(object):
 
     @_check_table_existence
     def put(self, row, data, timestamp=None, wal=True):
+        # encode row key and data before put (for python3 compatibility)
+        if not isinstance(row, bytes):
+            row = row.encode('utf-8')
+        data = {
+            (k if isinstance(k, bytes) else k.encode('utf-8')):
+            (v if isinstance(v, bytes) else v.encode('utf-8'))
+            for k, v in iteritems(data)
+        }
+
         # Check data against column families
         for colname in data:
             cf = colname.decode('utf-8').split(':')[0]
@@ -176,6 +199,14 @@ class Table(object):
 
     @_check_table_existence
     def delete(self, row, columns=None, timestamp=None, wal=True):
+        if not isinstance(row, bytes):
+            row = row.encode('utf-8')
+        if columns:
+            columns = [
+                column if isinstance(column, bytes)
+                else column.encode('utf-8')
+                for column in columns
+            ]
         if not columns and timestamp is None:
             # Delete whole row
             self._data.pop(row, None)
