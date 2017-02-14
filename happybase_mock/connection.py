@@ -6,9 +6,11 @@ DEFAULT_PORT = 9090
 DEFAULT_TRANSPORT = 'buffered'
 DEFAULT_COMPAT = '0.96'
 
+
 class _Singleton(type):
     """A python 2/3 compatible Singleton class
-    Reference: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
+    Based on:
+    https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
 
     A dict that stores singleton instances, where key is
     'host:port/table_prefix', value is Connection object
@@ -28,10 +30,14 @@ class _Singleton(type):
     def __call__(cls, *args, **kwargs):
         instance_id = cls._get_instance_id(**kwargs)
         if instance_id not in cls._instances:
-            cls._instances[instance_id] = super(_Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[instance_id] = super(_Singleton, cls).__call__(
+                *args, **kwargs)
         return cls._instances[instance_id]
 
-class Singleton(_Singleton('SingletonMeta', (object,), {})): pass
+
+class Singleton(_Singleton('SingletonMeta', (object,), {})):
+    pass
+
 
 class Connection(Singleton):
 
