@@ -1,5 +1,6 @@
 from .table import Table
 
+
 # Default values copied from happybase
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 9090
