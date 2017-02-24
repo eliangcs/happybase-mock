@@ -128,6 +128,11 @@ class Table(object):
              columns=None, timestamp=None, include_timestamp=False,
              batch_size=1000, scan_batching=None, limit=None,
              sorted_columns=False, **kwargs):
+        # encode columns key and data (for python3 compatibility)
+        if columns:
+          for i, col in enumerate(columns):
+            if not isinstance(col, bytes):
+                columns[i] = col.encode('utf-8')
         if row_prefix is not None:
             if not isinstance(row_prefix, bytes):
                 row_prefix = row_prefix.encode('utf-8')
