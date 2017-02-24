@@ -239,6 +239,15 @@ class TestTable(BaseTestCase):
             (b'8', {b'd:count': b'8'}), (b'9', {b'd:count': b'9'})
         ])
 
+        # scan with columns
+        self.assertEqual(list(self.table.scan(row_prefix=b'2', columns=[b'd:count'])), [
+            (b'2', {b'd:count': b'2'})
+        ])
+        self.assertEqual(list(self.table.scan(row_prefix=b'2', columns=['d:count'])), [
+            (b'2', {b'd:count': b'2'})
+        ])
+
+
     def test_scan_invalid_arguments(self):
         with self.assertRaises(TypeError):
             self.table.scan(row_start=b'1', row_stop=b'2', row_prefix=b'3')
