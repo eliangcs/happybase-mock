@@ -32,6 +32,10 @@ class TestTable(BaseTestCase):
         self.assertEqual(self.table.row(b'john'), {
             b'd:name': b'John'
         })
+        self.table.put('joe', {'d:name': 'Joe'})
+        self.assertEqual(self.table.row('joe'), {
+            b'd:name': b'Joe'
+        })
 
     def test_put_get_with_timestamps(self):
         self.table.put(b'01', {b'd:name': b'John'}, timestamp=1)
@@ -127,6 +131,7 @@ class TestTable(BaseTestCase):
         self.table.put(b'k', {b'd:a': b'a999'}, timestamp=future_time)
 
         self.assertEqual(self.table.cells(b'k', b'd:a'), [b'a999', b'a2', b'a1'])
+        self.assertEqual(self.table.cells('k', 'd:a'), [b'a999', b'a2', b'a1'])
         self.assertEqual(
             self.table.cells(b'k', b'd:a', timestamp=time.time()), [b'a2', b'a1'])
 
@@ -144,9 +149,12 @@ class TestTable(BaseTestCase):
         self.table.put(b'1', {b'd:name': b'Gary'}, timestamp=1)
         self.table.put(b'1', {b'd:age': b'21'}, timestamp=1)
         self.table.put(b'2', {b'd:name': b'Frank'})
+        self.table.put(b'3', {b'd:name': b'Joe'})
         self.table.delete(b'1')
+        self.table.delete('3')
 
         self.assertEqual(self.table.row(b'1'), {})
+        self.assertEqual(self.table.row(b'3'), {})
         self.assertEqual(self.table.row(b'2'), {b'd:name': b'Frank'})
 
     def test_delete_some_columns(self):
@@ -227,12 +235,18 @@ class TestTable(BaseTestCase):
         self.assertEqual(list(self.table.scan(row_prefix=b'2')), [
             (b'2', {b'd:count': b'2'})
         ])
+        self.assertEqual(list(self.table.scan(row_prefix='2')), [
+            (b'2', {b'd:count': b'2'})
+        ])
         self.assertEqual(
             list(self.table.scan(row_prefix=b'3', include_timestamp=True)),
             [(b'3', {b'd:count': (b'3', 3)})])
 
         # Range scan
         self.assertEqual(list(self.table.scan(row_start=b'4', row_stop=b'6')), [
+            (b'4', {b'd:count': b'4'}), (b'5', {b'd:count': b'5'})
+        ])
+        self.assertEqual(list(self.table.scan(row_start='4', row_stop='6')), [
             (b'4', {b'd:count': b'4'}), (b'5', {b'd:count': b'5'})
         ])
         self.assertEqual(list(self.table.scan(row_start=b'8')), [
