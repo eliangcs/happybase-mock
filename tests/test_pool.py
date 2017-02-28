@@ -17,5 +17,5 @@ class TestConnectionPool(BaseTestCase):
             # Test creating table and putting data
             conn.create_table('hello', {'d': dict()})
             table = conn.table('hello')
-            table.put('key', {'d:data': 'world'})
-            self.assertEqual(table.row('key'), {'d:data': 'world'})
+            table.put(b'key', {b'd:data': b'world'})
+            self.assertEqual(table.row(b'key'), {b'd:data': b'world'})
