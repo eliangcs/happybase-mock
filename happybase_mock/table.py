@@ -127,7 +127,7 @@ class Table(object):
     def scan(self, row_start=None, row_stop=None, row_prefix=None,
              columns=None, timestamp=None, include_timestamp=False,
              batch_size=1000, scan_batching=None, limit=None,
-             reverse=None, sorted_columns=False, **kwargs):
+             reverse=False, sorted_columns=False, **kwargs):
         # encode columns key and data (for python3 compatibility)
         if columns:
           for i, col in enumerate(columns):
